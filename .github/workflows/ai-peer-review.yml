@@ -32,7 +32,7 @@ jobs:
       - name: Test Copilot CLI
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          REVIEW_OUTPUT=$(copilot -p "Tell me the summary of this pull request")
+          REVIEW_OUTPUT=$(copilot -p "Tell me the summary of this pull request ${{github.event.pull_request.number}}")
           gh pr comment ${{ github.event.pull_request.number }} -b "$REVIEW_OUTPUT"
