@@ -34,5 +34,5 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          REVIEW_OUTPUT=$(copilot -p "Tell me the summary of this pull request" --repo ${{ github.repository }} --pr ${{ github.event.pull_request.number }})
+          REVIEW_OUTPUT=$(copilot -p "Tell me the summary of this pull request")
           gh pr comment ${{ github.event.pull_request.number }} -b "$REVIEW_OUTPUT"
