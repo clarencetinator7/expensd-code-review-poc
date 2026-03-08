@@ -4,6 +4,9 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions:
+  pull-requests: write
+  
 env:
   STANDARDS_REPO: https://github.com/clarencetinator7/coding-standards-poc
 
