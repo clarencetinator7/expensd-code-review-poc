@@ -105,11 +105,12 @@ jobs:
             EXPLANATION=$(echo $issue | jq -r '.explanation')
             FIX=$(echo $issue | jq -r '.suggested_fix')
             RULE=$(echo $issue | jq -r '.guideline.rule_title')
+            RULE_ID=$(echo $issue | jq -r '.guideline.rule_id')
             SEVERITY=$(echo $issue | jq -r '.severity')
 
             COMMENT="### $TITLE
 
-            **Rule:** $RULE  
+            **Rule:** $RULE_ID - $RULE  
             **Severity:** $SEVERITY  
 
             $EXPLANATION
