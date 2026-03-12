@@ -33,16 +33,10 @@ jobs:
 
       - name: Install Copilot CLI
         run: npm install -g @github/copilot
-
-      - name: Test Copilot CLI
-        env:
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          REVIEW_OUTPUT=$(copilot -p "Tell me the summary of this pull request ${{github.event.pull_request.number}}")
-          gh pr comment ${{ github.event.pull_request.number }} -b "$REVIEW_OUTPUT"
       
       - name: Get PR Diff
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr diff ${{ github.event.pull_request.number }} > pr_diff.txt
 
