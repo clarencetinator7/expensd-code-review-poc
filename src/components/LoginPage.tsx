@@ -6,7 +6,7 @@ import { Card } from "./ui/card";
 import { Mail, Lock } from "lucide-react";
 
 interface LoginPageProps {
-  onLoginSuccess: any;
+  onLoginSuccess: () => void;
 }
 
 export function LoginPage({ onLoginSuccess }: LoginPageProps) {
@@ -111,11 +111,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full border-gray-300"
-            >
+            <Button type="button" className="w-full border-gray-300">
               <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
@@ -136,11 +132,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
               </svg>
               Google
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full border-gray-300"
-            >
+            <Button type="button" className="w-full border-gray-300">
               <svg
                 className="w-4 h-4 mr-2"
                 fill="currentColor"
