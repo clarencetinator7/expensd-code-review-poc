@@ -131,4 +131,14 @@ jobs:
               -f side="RIGHT"
 
           done 
-            
+      
+      - name: Fail on Critical Issues
+        run: |
+          HIGH_ISSUES=$(jq '[.issues[] | select(.severity == "High")] | length' review.json)
+
+          echo "High severity issues: $HIGH_ISSUES"
+
+          if [ "$HIGH_ISSUES" -gt 0 ]; then
+            echo "Blocking merge due to high severity issues."
+            exit 1
+          fi
