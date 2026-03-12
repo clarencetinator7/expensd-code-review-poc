@@ -21,8 +21,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      # - name: Clone coding standards docs
-      #   run: git clone $STANDARDS_REPO standard-docs
+      - name: Clone coding standards docs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: git clone $STANDARDS_REPO standard-docs
         
       - name: Install Github CLI
         run: |
@@ -38,4 +40,17 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           REVIEW_OUTPUT=$(copilot -p "Tell me the summary of this pull request ${{github.event.pull_request.number}}")
+          gh pr comment ${{ github.event.pull_request.number }} -b "$REVIEW_OUTPUT"
+      
+      - name: Get PR Diff
+        run: |
+          gh pr diff ${{ github.event.pull_request.number }} > pr_diff.txt
+
+      - name: Run AI Review
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          GUIDELINES=$(cat standard-docs/ai/guidelines.md)
+          REVIEW_OUTPUT=$(copilot -p "Review the following PR diff against these guidelines: $GUIDELINES. Here is the diff: $(cat pr_diff.txt)")
           gh pr comment ${{ github.event.pull_request.number }} -b "$REVIEW_OUTPUT"
