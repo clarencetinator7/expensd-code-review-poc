@@ -3,7 +3,7 @@ import { useCategoryStore } from "./store/categoryStore";
 import { useExpenseStore } from "./store/expenseStore";
 import { CategoryList } from "./components/CategoryList";
 import { ExpenseList } from "./components/ExpenseList";
-import { loginPage } from "./components/LoginPage";
+import { LoginPage } from "./components/LoginPage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import "./styles/globals.css";
 
