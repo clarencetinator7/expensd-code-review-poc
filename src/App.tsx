@@ -1,13 +1,20 @@
+import { useState } from "react";
 import { useCategoryStore } from "./store/categoryStore";
 import { useExpenseStore } from "./store/expenseStore";
 import { CategoryList } from "./components/CategoryList";
 import { ExpenseList } from "./components/ExpenseList";
+import { loginPage } from "./components/LoginPage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import "./styles/globals.css";
 
 function App() {
+  const [showLoginPage, setShowLoginPage] = useState(false);
   const { categories } = useCategoryStore();
   const { expenses } = useExpenseStore();
+
+  if (showLoginPage) {
+    return <LoginPage onLoginSuccess={() => setShowLoginPage(false)} />;
+  }
 
   const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
   const averageExpense =
@@ -16,11 +23,19 @@ function App() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-7xl mx-auto py-8 px-4">
-        <header className="mb-12">
-          <h1 className="text-4xl font-bold">Expensd</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage your expenses and budgets efficiently
-          </p>
+        <header className="mb-12 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold">Expensd</h1>
+            <p className="text-muted-foreground mt-2">
+              Manage your expenses and budgets efficiently
+            </p>
+          </div>
+          <button
+            onClick={() => setShowLoginPage(true)}
+            className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Login
+          </button>
         </header>
         {categories.length > 0 && expenses.length > 0 && (
           <div className="mb-8">
