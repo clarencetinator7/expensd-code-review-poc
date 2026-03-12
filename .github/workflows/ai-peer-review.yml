@@ -48,6 +48,6 @@ jobs:
           GUIDELINES=$(cat standard-docs/ai/ai-peer-review-guidelines.md)
           REVIEW_OUTPUT=$(copilot -p "Review the following PR diff against these guidelines: $GUIDELINES. Here is the diff: $(cat pr_diff.txt)")
           echo "[DEBUG] Raw AI Review Output: $REVIEW_OUTPUT"
-          CLEAN_REVIEW=$(echo "$RAW_OUTPUT" | awk '/<<<AI_REVIEW_START>>>/{flag=1;next}/<<<AI_REVIEW_END>>>/{flag=0}flag')
+          CLEAN_REVIEW=$(echo "$REVIEW_OUTPUT" | awk '/<<<AI_REVIEW_START>>>/{flag=1;next}/<<<AI_REVIEW_END>>>/{flag=0}flag')
           echo "[DEBUG] Cleaned AI Review: $CLEAN_REVIEW"
           gh pr comment ${{ github.event.pull_request.number }} -b "$CLEAN_REVIEW"
