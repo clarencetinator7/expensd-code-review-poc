@@ -12,8 +12,16 @@ function App() {
   const { categories } = useCategoryStore();
   const { expenses } = useExpenseStore();
 
+  const onShowLoginPage = () => {
+    setShowLoginPage(true);
+  };
+
+  const onHideLoginPage = () => {
+    setShowLoginPage(false);
+  };
+
   if (showLoginPage) {
-    return <LoginPage onLoginSuccess={() => setShowLoginPage(false)} />;
+    return <LoginPage onLoginSuccess={onHideLoginPage} />;
   }
 
   const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
@@ -31,7 +39,7 @@ function App() {
             </p>
           </div>
           <button
-            onClick={() => setShowLoginPage(true)}
+            onClick={onShowLoginPage}
             className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             Login
