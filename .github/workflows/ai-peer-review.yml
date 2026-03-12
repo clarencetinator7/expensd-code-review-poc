@@ -9,6 +9,7 @@ permissions:
   
 env:
   STANDARDS_REPO: https://github.com/clarencetinator7/coding-standards-poc.git
+  STANDARDS_BRANCH: feature/inline-comments
 
 jobs:
   review:
@@ -24,7 +25,7 @@ jobs:
       - name: Clone coding standards docs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: git clone $STANDARDS_REPO standard-docs
+        run: git clone -b $STANDARDS_BRANCH --single-branch $STANDARDS_REPO standard-docs
         
       - name: Install Github CLI
         run: |
@@ -33,6 +34,9 @@ jobs:
 
       - name: Install Copilot CLI
         run: npm install -g @github/copilot
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
       
       - name: Get PR Diff
         env:
@@ -46,8 +50,85 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           GUIDELINES=$(cat standard-docs/ai/ai-peer-review-guidelines.md)
-          REVIEW_OUTPUT=$(copilot -p "Review the following PR diff against these guidelines: $GUIDELINES. Here is the diff: $(cat pr_diff.txt)")
-          echo "[DEBUG] Raw AI Review Output: $REVIEW_OUTPUT"
+
+          REVIEW_OUTPUT=$(copilot -p "
+            Review the following PR diff against these guidelines: $GUIDELINES.
+            
+            Return the output strictly in the required JSON Format, 
+
+            Here is the diff: $(cat pr_diff.txt)
+          ")
+
+          echo "[DEBUG] Raw AI Review Output:"
+          echo "$REVIEW_OUTPUT"
+
           CLEAN_REVIEW=$(echo "$REVIEW_OUTPUT" | awk '/<<<AI_REVIEW_START>>>/{flag=1;next}/<<<AI_REVIEW_END>>>/{flag=0}flag')
+
           echo "[DEBUG] Cleaned AI Review: $CLEAN_REVIEW"
-          gh pr comment ${{ github.event.pull_request.number }} -b "$CLEAN_REVIEW"
+
+          echo "$CLEAN_REVIEW" > review.json
+
+          echo "[DEBUG] Final Review JSON:"
+
+          cat review.json
+        
+      - name: Post PR Summary
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SUMMARY=$(jq -r '.summary.overall_assessment' review.json)
+          ISSUES=$(jq -r '.summary.issues_found' review.json)
+          FILES=$(jq -r '.summary.files_reviewed' review.json)SUMMARY=$(jq -r '.summary' review.json)
+          BODY="## 🤖 AI Peer Review Summary
+
+          **Files Reviewed:** $FILES  
+          **Issues Found:** $ISSUES
+
+          $SUMMARY
+          "
+
+          gh pr comment ${{ github.event.pull_request.number }} -b "$BODY"
+
+      - name: Create Inline Review Comments
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+
+          COMMIT_ID=${{ github.event.pull_request.head.sha }}
+          REPO=${{ github.repository }}
+          PR=${{ github.event.pull_request.number }}
+
+          jq -c '.issues[]' review.json | while read issue; do
+
+            FILE=$(echo $issue | jq -r '.file')
+            LINE=$(echo $issue | jq -r '.line')
+            TITLE=$(echo $issue | jq -r '.title')
+            EXPLANATION=$(echo $issue | jq -r '.explanation')
+            FIX=$(echo $issue | jq -r '.suggested_fix')
+            RULE=$(echo $issue | jq -r '.guideline.rule_title')
+            SEVERITY=$(echo $issue | jq -r '.severity')
+
+            COMMENT="### $TITLE
+
+            **Rule:** $RULE  
+            **Severity:** $SEVERITY  
+
+            $EXPLANATION
+
+            Suggested Fix:
+            \`\`\`
+            $FIX
+            \`\`\`
+            "
+
+            echo "Posting comment on $FILE:$LINE"
+
+            gh api repos/$REPO/pulls/$PR/comments \
+              -f body="$COMMENT" \
+              -f commit_id="$COMMIT_ID" \
+              -f path="$FILE" \
+              -F line="$LINE" \
+              -f side="RIGHT"
+
+          done 
+            
