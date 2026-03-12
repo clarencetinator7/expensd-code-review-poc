@@ -14,7 +14,6 @@ env:
 jobs:
   review:
     runs-on: ubuntu-latest
-    name: AI Peer Review (PR-${{ github.event.pull_request.number }})
 
     steps:
       - name: Set up Node.js environment
