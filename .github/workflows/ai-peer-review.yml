@@ -8,7 +8,7 @@ permissions:
   pull-requests: write
   
 env:
-  STANDARDS_REPO: https://github.com/clarencetinator7/coding-standards-poc
+  STANDARDS_REPO: https://github.com/clarencetinator7/coding-standards-poc.git
 
 jobs:
   review:
