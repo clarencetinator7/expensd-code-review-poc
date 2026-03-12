@@ -47,4 +47,5 @@ jobs:
         run: |
           GUIDELINES=$(cat standard-docs/ai/ai-peer-review-guidelines.md)
           REVIEW_OUTPUT=$(copilot -p "Review the following PR diff against these guidelines: $GUIDELINES. Here is the diff: $(cat pr_diff.txt)")
-          gh pr comment ${{ github.event.pull_request.number }} -b "$REVIEW_OUTPUT"
+          CLEAN_REVIEW=$(echo "$REVIEW_OUTPUT" | sed -n '/---- REVIEW START ----/,/---- REVIEW END ----/p')
+          gh pr comment ${{ github.event.pull_request.number }} -b "$CLEAN_REVIEW"
