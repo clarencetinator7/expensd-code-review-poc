@@ -78,7 +78,7 @@ jobs:
         run: |
           SUMMARY=$(jq -r '.summary.overall_assessment' review.json)
           ISSUES=$(jq -r '.summary.issues_found' review.json)
-          FILES=$(jq -r '.summary.files_reviewed' review.json)SUMMARY=$(jq -r '.summary' review.json)
+          FILES=$(jq -r '.summary.files_reviewed' review.json)
           BODY="## 🤖 AI Peer Review Summary
 
           **Files Reviewed:** $FILES  
@@ -93,12 +93,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-
           COMMIT_ID=${{ github.event.pull_request.head.sha }}
           REPO=${{ github.repository }}
           PR=${{ github.event.pull_request.number }}
 
-          jq -c '.issues[]' review.json | while read issue; do
+          jq -c '.issues[]' review.json | while IFS= read -r issue; do
 
             FILE=$(echo $issue | jq -r '.file')
             LINE=$(echo $issue | jq -r '.line')
