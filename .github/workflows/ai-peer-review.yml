@@ -44,14 +44,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          CURRENT_SHA=${{ github.event.pull_request.head.sha }}
           LAST_REVIEW_SHA=$(gh pr view ${{ github.event.pull_request.number }} --comments \
             --json comments \
             --jq '.comments[].body' | \
             grep "AI_REVIEW_SHA" | tail -n 1 | sed 's/.*AI_REVIEW_SHA: //; s/ *-->.*//')
 
 
-          if [ -z "$LAST_REVIEW_SHA" ]; then
-            echo "No previous review found. Using base branch for diff."
+          if [ -z "$LAST_REVIEW_SHA" ] || [ "$LAST_REVIEW_SHA" == "$CURRENT_SHA" ]; then
+            echo "No previous review found or SHA is same. Using base branch for diff."
             git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
           else
             echo "Previous review found at SHA: $LAST_REVIEW_SHA. Using it for diff."
