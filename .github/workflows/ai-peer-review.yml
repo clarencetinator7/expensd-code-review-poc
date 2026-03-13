@@ -52,7 +52,7 @@ jobs:
 
           if [ -z "$LAST_REVIEW_SHA" ]; then
             echo "No previous review found. Using base branch for diff."
-            git diff origin/${{ github.event.pull_request.base.ref }}...HEAD > pr_diff.txt
+            git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
           else
             echo "Previous review found at SHA: $LAST_REVIEW_SHA. Using it for diff."
             git diff $LAST_REVIEW_SHA HEAD > pr_diff.txt
