@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLogin } from "../hooks/useLogin";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -12,18 +13,10 @@ interface LoginPageProps {
 export function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, handleSubmit } = useLogin();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // Simulate a login attempt - in reality, this would call an API
-    setTimeout(() => {
-      setIsLoading(false);
-      // For now, just call the success callback on submit
-      onLoginSuccess();
-    }, 1000);
+  const handleFormSubmit = (e: React.FormEvent) => {
+    handleSubmit(e, onLoginSuccess);
   };
 
   return (
@@ -35,7 +28,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
         </div>
 
         <Card className="p-8 shadow-lg">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleFormSubmit} className="space-y-6">
             <div>
               <Label htmlFor="email" className="text-sm font-medium">
                 Email Address
