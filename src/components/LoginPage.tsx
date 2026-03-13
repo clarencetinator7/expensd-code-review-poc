@@ -13,10 +13,13 @@ interface LoginPageProps {
 export function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { isLoading, handleSubmit } = useLogin();
+  const { isLoading, error, handleSubmit } = useLogin();
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    handleSubmit(e, onLoginSuccess);
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    await handleSubmit(e, { email, password }, onLoginSuccess, (error) => {
+      // Error callback - already set in state by hook
+      console.error("Login error:", error);
+    });
   };
 
   return (
@@ -29,6 +32,11 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
 
         <Card className="p-8 shadow-lg">
           <form onSubmit={handleFormSubmit} className="space-y-6">
+            {error && (
+              <div className="rounded-md bg-red-50 p-4 border border-red-200">
+                <p className="text-sm text-red-800">{error}</p>
+              </div>
+            )}
             <div>
               <Label htmlFor="email" className="text-sm font-medium">
                 Email Address
