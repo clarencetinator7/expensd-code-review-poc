@@ -47,7 +47,7 @@ jobs:
           LAST_REVIEW_SHA=$(gh pr view ${{ github.event.pull_request.number }} --comments \
             --json comments \
             --jq '.comments[].body' | \
-            grep "AI_REVIEW_SHA" | tail -n 1 | sed 's/.*AI_REVIEW_SHA: //')
+            grep "AI_REVIEW_SHA" | tail -n 1 | sed 's/.*AI_REVIEW_SHA: //; s/ *-->.*//')
 
 
           if [ -z "$LAST_REVIEW_SHA" ]; then
