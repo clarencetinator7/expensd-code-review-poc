@@ -2,6 +2,7 @@ import { useCategoryStore } from "./store/categoryStore";
 import { useExpenseStore } from "./store/expenseStore";
 import { CategoryList } from "./components/CategoryList";
 import { ExpenseList } from "./components/ExpenseList";
+import { ThemeToggle } from "./components/ThemeToggle";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import "./styles/globals.css";
 
@@ -16,11 +17,14 @@ function App() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-7xl mx-auto py-8 px-4">
-        <header className="mb-12">
-          <h1 className="text-4xl font-bold">Expensd</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage your expenses and budgets efficiently
-          </p>
+        <header className="mb-12 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold">Expensd</h1>
+            <p className="text-muted-foreground mt-2">
+              Manage your expenses and budgets efficiently
+            </p>
+          </div>
+          <ThemeToggle />
         </header>
         {categories.length > 0 && expenses.length > 0 && (
           <div className="mb-8">
