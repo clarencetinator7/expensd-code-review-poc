@@ -51,14 +51,9 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          GUIDELINES=$(cat standard-docs/ai/ai-peer-review-guidelines.md)
-
-          REVIEW_OUTPUT=$(copilot -p "
-            Review the following PR diff against these guidelines: $GUIDELINES.
-            
-            Return the output strictly in the required JSON Format, 
-
-            Here is the diff: $(cat pr_diff.txt)
+          REVIEW_OUTPUT=$(copilot -p "/review the changes on this branch compared to the base branch.
+            Use the following guidelines inside standard-docs/ folder to review the code.
+            Return the output strictly in the required JSON Format, with no additional text or commentary.
           ")
 
           echo "[DEBUG] Raw AI Review Output:"
