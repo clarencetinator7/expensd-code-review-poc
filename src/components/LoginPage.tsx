@@ -80,9 +80,14 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
                 />
                 <span className="ml-2 text-sm text-gray-600">Remember me</span>
               </label>
-              <a href="#" className="text-sm text-blue-600 hover:text-blue-700">
+              <button
+                type="button"
+                disabled
+                className="text-sm text-gray-400 cursor-not-allowed"
+                aria-label="Forgot password functionality not yet implemented"
+              >
                 Forgot password?
-              </a>
+              </button>
             </div>
 
             <Button
@@ -139,12 +144,14 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
 
           <p className="mt-6 text-center text-sm text-gray-600">
             Don't have an account?{" "}
-            <a
-              href="#"
-              className="font-medium text-blue-600 hover:text-blue-700"
+            <button
+              type="button"
+              disabled
+              className="font-medium text-gray-400 cursor-not-allowed"
+              aria-label="Sign up functionality not yet implemented"
             >
               Sign up here
-            </a>
+            </button>
           </p>
         </Card>
 
