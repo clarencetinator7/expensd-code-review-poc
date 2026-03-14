@@ -19,7 +19,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0  
       
       - name: Set up Node.js environment
         uses: actions/setup-node@v4
@@ -44,16 +44,34 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr diff ${{ github.event.pull_request.number }} > pr_diff.txt
+          CURRENT_SHA=${{ github.event.pull_request.head.sha }}
+          LAST_REVIEW_SHA=$(gh pr view ${{ github.event.pull_request.number }} --comments \
+            --json comments \
+            --jq '.comments[].body' | \
+            grep "AI_REVIEW_SHA" | tail -n 1 | sed 's/.*AI_REVIEW_SHA: //; s/ *-->.*//')
+
+
+          if [ -z "$LAST_REVIEW_SHA" ] || [ "$LAST_REVIEW_SHA" == "$CURRENT_SHA" ]; then
+            echo "No previous review found or SHA is same. Using base branch for diff."
+            git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
+          else
+            echo "Previous review found at SHA: $LAST_REVIEW_SHA. Using it for diff."
+            git diff $LAST_REVIEW_SHA HEAD > pr_diff.txt
+          fi
 
       - name: Run AI Review
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          REVIEW_OUTPUT=$(copilot -p "/review the changes on this branch compared to the base branch.
-            Use the following guidelines inside standard-docs/ folder to review the code.
-            Return the output strictly in the required JSON Format, with no additional text or commentary.
+          GUIDELINES=$(cat standard-docs/ai/ai-peer-review-guidelines.md)
+
+          REVIEW_OUTPUT=$(copilot -p "
+            Review the following PR diff against these guidelines: $GUIDELINES.
+            
+            Return the output strictly in the required JSON Format, 
+
+            Here is the diff: $(cat pr_diff.txt)
           ")
 
           echo "[DEBUG] Raw AI Review Output:"
@@ -73,10 +91,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          CURRENT_SHA=${{ github.event.pull_request.head.sha }}
           SUMMARY=$(jq -r '.summary.overall_assessment' review.json)
           ISSUES=$(jq -r '.summary.issues_found' review.json)
           FILES=$(jq -r '.summary.files_reviewed' review.json)
-          BODY="## 🤖 AI Peer Review Summary
+          BODY="<!-- AI_REVIEW_SHA: $CURRENT_SHA -->
+          ## 🤖 AI Peer Review Summary
 
           **Files Reviewed:** $FILES  
           **Issues Found:** $ISSUES
